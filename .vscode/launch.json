@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["--config_path", "../config/celeba64/diti64.yml",
+                     "--run_path", "../runs",
+                     "--method", "diti",
+                     "-n", "1",
+                     "-g", "2",
+                     "-nr", "0"],
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "cwd": "${fileDirname}"
+        }
+    ]
+}
