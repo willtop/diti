@@ -13,7 +13,8 @@ from torch.autograd import Variable
 import yaml
 import json
 from PIL import Image
-import lmdb
+# abort using lmdb
+# import lmdb
 
 
 
@@ -75,16 +76,18 @@ def load_json(filename):
     with open(filename, 'r') as f:
         return json.load(f)
 
-def open_lmdb(path):
-    env = lmdb.open(
-        path,
-        max_readers=32,
-        readonly=True,
-        lock=False,
-        readahead=False,
-        meminit=False,
-    )
-    return env.begin(write=False)
+# the original code use lmdb, which is malfunctioning
+# abort here
+# def open_lmdb(path):
+#     env = lmdb.open(
+#         path,
+#         max_readers=32,
+#         readonly=True,
+#         lock=False,
+#         readahead=False,
+#         meminit=False,
+#     )
+#     return env.begin(write=False)
 
 # label: B  return: B x N
 def get_one_hot(label, N):

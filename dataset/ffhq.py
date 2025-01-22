@@ -5,7 +5,8 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from utils import open_lmdb
+# abort using lmdb
+# from utils import open_lmdb
 
 class FFHQ(Dataset):
     def __init__(self, config):

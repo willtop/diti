@@ -3,12 +3,14 @@ from io import BytesIO
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from torchvision.datasets.celeba import CelebA
 from torchvision import transforms
 import torchvision.transforms.functional as F
 import os
 import pandas as pd
 
-from utils import open_lmdb
+# Abort using lmdb
+# from utils import open_lmdb
 
 class CropCelebA64(object):
     def __call__(self, img):
@@ -24,6 +26,12 @@ class CELEBA64(Dataset):
         self.image_size = self.config["image_size"]
         self.split = self.config["split"]
         self.augmentation = self.config["augmentation"]
+
+        # load celeba images using torchvision dataset
+        self.celeba_train = CelebA(self.data_path, split='train', target_type='attr', download=True)
+        self.celeba_valid = CelebA(self.data_path, split='valid', target_type='attr', download=True)
+        self.celeba_test = CelebA(self.data_path, split='test', target_type='attr', download=True)
+        assert len(self.celeba_train) == 162_770 and len(self.celeba_valid) == 19_867 and len(self.celeba_test) == (19_962)
 
         if self.augmentation:
             self.transform = transforms.Compose([
@@ -109,7 +117,7 @@ class CELEBA64(Dataset):
                 transforms.Normalize((0.5,), (0.5,), inplace=True)
             ])
 
-        with open(os.path.join(self.data_path, "list_attr_celeba.txt")) as f:
+        with open(os.path.join(self.data_path, "celeba", "list_attr_celeba.txt")) as f:
             f.readline() # discard the top line
             self.df = pd.read_csv(f, delim_whitespace=True)
 
@@ -132,45 +140,31 @@ class CELEBA64(Dataset):
     # test: 182,637~202,599   19,963
     def __len__(self):
         if self.split == "train":
-            return 162770
+            return len(self.celeba_train)
         if self.split == "valid":
-            return 19867
+            return len(self.celeba_valid)
         if self.split == "test" or self.split == "eval":
-            return 19962
+            return len(self.celeba_test)
         else:
             raise NotImplementedError()
 
     def __getitem__(self, index):
-        if not hasattr(self, 'txn'):
-            self.txn = open_lmdb(self.data_path)
-
         if self.split == "train":
-            offset_index = index
+            celeba_dataset = self.celeba_train
         elif self.split == "valid":
-            offset_index = 162770 + index
+            celeba_dataset = self.celeba_valid
         elif self.split == "test" or self.split == "eval":
-            offset_index = 162770 + 19867 + index
+            celeba_dataset = self.celeba_test
         else:
             raise NotImplementedError()
 
-        key = f'None-{str(offset_index).zfill(7)}'.encode('utf-8')
-        img_bytes = self.txn.get(key)
-
-        buffer = BytesIO(img_bytes)
-        image = Image.open(buffer)
+        image, attr = celeba_dataset[index]
+        assert attr.shape == (40,)
 
         image_dm = self.transform(image)
         image_ssl1 = self.ssl_transform(image)
         image_ssl2 = self.ssl_transform(image)
         gt = image_dm.mul(0.5).add(0.5).mul(255).add(0.5).clamp(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
-
-        row = self.df.iloc[offset_index]
-        label = [0] * len(self.id_to_label)
-        for k, v in row.items():
-            val = int(v)
-            if val < 0:
-                val = 0
-            label[self.label_to_id[k]] = val
 
         return {
             "x_0": image_dm,
@@ -178,7 +172,7 @@ class CELEBA64(Dataset):
             "x_ssl2": image_ssl2,
             "gt": gt,
             "x_T": torch.randn(self.image_channel, self.image_size, self.image_size),
-            "label": torch.tensor(label) # [-1, -1, 1, -1, 1, ...],
+            "label": attr # should be [0, 1, 1, 0, 1, ...], not sure why original repo had -1 here in comment
         }
 
     @staticmethod

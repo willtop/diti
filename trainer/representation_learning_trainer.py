@@ -90,7 +90,7 @@ class RepresentationLearningTrainer(BaseTrainer):
             additional_data_dict[name] = 0
         time_meter = defaultdict(float)
 
-        display_steps = 100
+        display_steps = 10
         while True:
             start_time_top = time.time_ns()
 
@@ -147,8 +147,8 @@ class RepresentationLearningTrainer(BaseTrainer):
             time_meter['step'] += (time.time_ns() - start_time_top) / 1e9
 
             if self.step % display_steps == 0:
-                info = 'rank{}: step = {}, final = {:.5f}, lr = {:.6f}'.format(
-                    self.rank, self.step,
+                info = 'rank{}: step = {}/{}, final = {:.5f}, lr = {:.6f}'.format(
+                    self.rank, self.step, np.ceil(self.config['runner_config']['max_images']/self.config['dataloader_config']['batch_size']),
                     acc_final_loss / display_steps,
                     self.optimizer.defaults["lr"])
                 print('{} '.format(info), end=' - ')

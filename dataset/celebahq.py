@@ -7,7 +7,8 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from utils import open_lmdb
+# abort using lmdb
+# from utils import open_lmdb
 
 
 class CELEBAHQ(Dataset):

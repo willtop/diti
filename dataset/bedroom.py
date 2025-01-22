@@ -5,7 +5,8 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from utils import open_lmdb
+# Abort using lmdb
+#from utils import open_lmdb
 
 class BEDROOM(Dataset):
     def __init__(self, config):

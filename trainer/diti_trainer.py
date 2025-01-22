@@ -244,6 +244,7 @@ class DiTiTrainer(RepresentationLearningTrainer):
             self.k_masks = torch.ones(self.k, latent_dim)
             self.receding_masks = torch.zeros(self.k, latent_dim)
         else:
+            # this is where the latent partitions and diffusion steps that each partition helps are set
             self.masks = torch.zeros(self.k, latent_dim)
             self.k_masks = torch.zeros(self.k, latent_dim)
             self.receding_masks = torch.zeros(self.k, latent_dim)
