@@ -11,7 +11,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["--config_path", "../config/celeba64/diti64.yml",
+            "args": ["--config_path", "../config/celeba128/diti64.yml",
                      "--run_path", "../runs",
                      "--method", "diti",
                      "-n", "1",

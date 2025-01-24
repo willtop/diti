@@ -10,12 +10,12 @@ import os
 import pandas as pd
 
 
-class CropCelebA64(object):
+class CropCelebA128(object):
     def __call__(self, img):
         new_img = F.crop(img, 57, 25, 128, 128)
         return new_img
 
-class CELEBA64(Dataset):
+class CELEBA128(Dataset):
     def __init__(self, config):
         super().__init__()
         self.config = config
@@ -25,6 +25,8 @@ class CELEBA64(Dataset):
         self.split = self.config["split"]
         self.augmentation = self.config["augmentation"]
 
+        assert self.image_size == 128
+
         # load celeba images using torchvision dataset
         self.celeba_train = CelebA(self.data_path, split='train', target_type='attr', download=True)
         self.celeba_valid = CelebA(self.data_path, split='valid', target_type='attr', download=True)
@@ -33,8 +35,7 @@ class CELEBA64(Dataset):
 
         if self.augmentation:
             self.transform = transforms.Compose([
-                CropCelebA64(),
-                transforms.Resize(self.image_size),
+                CropCelebA128(),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,), (0.5,), inplace=True)
@@ -47,9 +48,7 @@ class CELEBA64(Dataset):
 
             if ssl_aug == "simsiam":
                 self.ssl_transform = transforms.Compose([
-                    # transforms.RandomResizedCrop(self.image_size, scale=(0.25, 1.0)),
-                    CropCelebA64(),
-                    transforms.Resize(self.image_size),
+                    CropCelebA128(),
                     transforms.RandomHorizontalFlip(),
                     transforms.RandomApply([transforms.ColorJitter(0.4,0.4,0.4,0.1)], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
@@ -60,9 +59,7 @@ class CELEBA64(Dataset):
             elif ssl_aug == "simclr":
                 s = 1.0
                 self.ssl_transform = transforms.Compose([
-                    # transforms.RandomResizedCrop(self.image_size, scale=(0.25, 1.0)),
-                    CropCelebA64(),
-                    transforms.Resize(self.image_size),
+                    CropCelebA128(),
                     transforms.RandomHorizontalFlip(),
                     transforms.RandomApply([transforms.ColorJitter(0.8*s,0.8*s,0.8*s,0.2*s)], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
@@ -73,18 +70,14 @@ class CELEBA64(Dataset):
             elif ssl_aug == "simclr_waug":
                 s = 1.0
                 self.ssl_transform = transforms.Compose([
-                    # transforms.RandomResizedCrop(self.image_size, scale=(0.25, 1.0)),
-                    CropCelebA64(),
-                    transforms.Resize(self.image_size),
+                    CropCelebA128(),
                     transforms.ToTensor(),
                     transforms.Normalize((0.5,), (0.5,), inplace=True)
                 ])
             elif ssl_aug == "simclr_waug2":
                 s = 1.0
                 self.ssl_transform = transforms.Compose([
-                    # transforms.RandomResizedCrop(self.image_size, scale=(0.25, 1.0)),
-                    CropCelebA64(),
-                    transforms.Resize(self.image_size),
+                    CropCelebA128(),
                     transforms.RandomApply([transforms.ColorJitter(0.8*s,0.8*s,0.8*s,0.2*s)], p=0.8),
                     transforms.RandomApply([transforms.GaussianBlur(kernel_size=self.image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
                     transforms.ToTensor(),
@@ -92,8 +85,7 @@ class CELEBA64(Dataset):
                 ])
             elif ssl_aug == "mae":
                 self.ssl_transform = transforms.Compose([
-                    CropCelebA64(),
-                    transforms.Resize(self.image_size),
+                    CropCelebA128(),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                     transforms.Normalize((0.5,), (0.5,), inplace=True)
@@ -102,15 +94,13 @@ class CELEBA64(Dataset):
                 assert False, 'Specified SSL aug not found!'
         else:
             self.transform = transforms.Compose([
-                CropCelebA64(),
-                transforms.Resize(self.image_size),
+                CropCelebA128(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,), (0.5,), inplace=True)
             ])
 
             self.ssl_transform = transforms.Compose([
-                CropCelebA64(),
-                transforms.Resize(self.image_size),
+                CropCelebA128(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,), (0.5,), inplace=True)
             ])
