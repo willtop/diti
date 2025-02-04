@@ -3,7 +3,7 @@ train_dataset_config:
   data_path: "../data/celeba128"
   image_size: 128
   image_channel: 3
-  latent_dim: &latent_dim 512
+  latent_dim: &latent_dim 256
   split: "train"
   augmentation: True
   ssl_aug: "simclr"
@@ -12,7 +12,7 @@ eval_dataset_config:
   augmentation: False
 
 diffusion_config:
-  timesteps: 1000
+  timesteps: 500
   betas_type: "linear"
   linear_beta_start: 0.0001
   linear_beta_end: 0.02
@@ -51,8 +51,8 @@ runner_config:
   max_images: 38000000
 ssl_config:
   k: 64
-  stages: 50,100,300,500,1000    # last number must be 1000. E.g., t1,t2 means 2 stages: 0->t1, t1->t2
-  dims_per_stage: 10,25,327,100,50     # length must = len(stages), sum must = latent_dim
+  stages: 100,200,300,400,500    # last number must be 1000. E.g., t1,t2 means 2 stages: 0->t1, t1->t2
+  dims_per_stage: 50,50,50,50,56     # length must = len(stages), sum must = latent_dim
   ssl_weight: 0.0
   ssl_start_step: 200000
   encoder_opt_sgd: False

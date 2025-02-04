@@ -118,7 +118,7 @@ Counterfactual generation between 2 images with a trained model. dataset can be 
 
 ```
 cd ./eval
-python counterfactual_generation.py --split train --img1 32972 --img2 32973 --gpu 1 --ckpt_root ../runs/celeba64/pdae --ckpt_name latest --dataset celeba
+python counterfactual_generation.py --split train --img1 32972 --img2 32973 --gpu 1 --ckpt_root ../runs/celeba128/diti64 --ckpt_name latest --dataset celeba128
 ```
 
 Modular manipulation on a CelebA attribute (e.g., index 25) by setting ProbMask dimension d' to 16. Learned classifier and logging will be saved to the ckpt_root.

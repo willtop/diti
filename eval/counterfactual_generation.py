@@ -4,6 +4,8 @@ discuss how many channels of z we interpolate could lead to significant change o
 import sys
 sys.path.append("../")
 
+import numpy as np
+
 from PIL import Image
 import torch
 from pathlib import Path
@@ -159,8 +161,9 @@ class Interp:
         return merge
 
     def exp_lerp_simple(self):
-        loc = [2, 16, 24, 32]
-        wid = [4, 8, 8, 32]
+        latent_width = 4
+        loc = np.arange(start=0, stop=63, step=latent_width, dtype=np.int8)
+        wid = np.ones(len(loc), dtype=np.int8)*latent_width
         img_txt_list = []
         assert len(loc) == len(wid), f"len(loc) ({len(loc)}) != len(wid) ({len(wid)})"
         alpha_range = [0, .25, .5, .75, 1.]
@@ -196,14 +199,14 @@ def main(
         img1: Optional[int] = None,
         img2: Optional[int] = None,
         split: Optional[int] = None,
-        f: int = 1000,
+        f: int = 500,
         r: int = 100,
         dataset: str = "celeba",
         output_dir: str = "../runs/cf_generations"
 ):
 
     k = 64
-    latend_dim = 512
+    latend_dim = 256
     # k_range = list(range(0,k-(w-1), 18))
     alpha_range = torch.linspace(0,1,2).tolist()
     device = f"cuda:{gpu}"
@@ -215,13 +218,24 @@ def main(
         "config_path": os.path.join(ckpt_root, "config.yml"),
         "checkpoint_path": os.path.join(ckpt_root, "checkpoints", f"{ckpt_name}.pt")
     }
-    if dataset == "celeba":
+    if dataset == "celeba64":
         config.update({
             "dataset_name": "CELEBA64",
             "dataset_kwargs": {
                 "data_path": "../data/celeba64",
                 "image_channel": 3,
                 "image_size": 64,
+                "augmentation": False, 
+                "split": "test",
+            },
+        })
+    elif dataset == "celeba128":
+        config.update({
+            "dataset_name": "CELEBA128",
+            "dataset_kwargs": {
+                "data_path": "../data/celeba128",
+                "image_channel": 3,
+                "image_size": 128,
                 "augmentation": False, 
                 "split": "test",
             },

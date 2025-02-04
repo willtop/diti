@@ -1,13 +1,12 @@
 denoise_fn_config:
   attention_resolutions:
-  - 8
-  base_channel: 128
+  - 4
+  base_channel: 64
   channel_multiplier:
   - 1
-  - 1
   - 2
-  - 3
   - 4
+  - 8
   dims: 2
   dropout: 0.1
   head_channel: -1
